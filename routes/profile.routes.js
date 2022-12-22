@@ -1,6 +1,6 @@
 const express = require("express")
 
-router.get("/vaccines", (req,res,next) => {
+router.get("/profile", (req,res,next) => {
     res.send ("")
     
 })

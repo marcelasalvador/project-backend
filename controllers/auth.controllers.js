@@ -75,8 +75,68 @@ const loginController = (req,res,next) => {
         .catch(err => res.send(err))
 }
 
+const deleteController = (req, res, next) => {
+    const { _id } = req.myPayload;
+  
+    if (!_id) {
+      return res.status(400).json({
+        error: {
+          message: "Missing user id"
+        }
+      });
+    }
+  
+    User.findByIdAndDelete(_id)
+      .then(deletedUser => {
+        if (!deletedUser) {
+          return res.status(404).json({
+            error: {
+              message: "User not found"
+            }
+          });
+        }
+        res.json({
+          message: "User successfully deleted"
+        });
+      })
+      .catch(err => res.send(err));
+  };
+
+  const updateController = (req, res, next) => {
+    const { email, name } = req.body
+    User.findByIdAndUpdate(req.myPayload._id, {
+      name: name,
+      email: email,
+    }, { new: true })
+      .then(updatedUser => {
+
+        const payload ={
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email
+        }
+
+        const authToken = jwt.sign(
+            payload,
+            process.env.TOKEN_SECRET,
+            { algorithm: "HS256", expiresIn: "6h" }
+        )
+
+        res.json({
+            authToken: authToken
+        });
+        
+      })
+      .catch(err => res.send(err));
+  
+  };
+
 module.exports = {
     signupController,
     loginController,
+    deleteController,
+    updateController
 }
+
+
 
